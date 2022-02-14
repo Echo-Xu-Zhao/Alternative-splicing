@@ -1,0 +1,57 @@
+1. build index
+STAR --runThreadN 32 --runMode genomeGenerate --genomeDir /home/tr/ref/Gencode/M28/STAR_index --genomeFastaFiles GRCm39.primary_assembly.genome.fa --sjdbGTFfile gencode.vM28.primary_assembly.annotation.gtf --sjdbOverhang 149 --limitGenomeGenerateRAM 99000000000
+2. trimming
+#!/bin/bash
+
+for n in {1..4}
+
+do
+
+
+fastp \
+-i WT_"$n"_1.fq.gz \
+-o WT_"$n"_1.trimmed.fq.gz \
+-I WT_"$n"_2.fq.gz \
+-O WT_"$n"_2.trimmed.fq.gz \
+-h WT_"$n".html \
+-j WT_"$n".json \
+-c \
+-w 16 \
+-q 30 \
+--trim_poly_g \
+--trim_poly_x
+
+done
+
+3.STAR mapping, 1st pass
+
+#!/bin/bash
+
+for n in {1..4}
+do
+
+
+STAR \
+--runThreadN 32 \
+--genomeDir ~/ref/Gencode/M28/STAR_index \
+--readFilesCommand zcat \
+--outFileNamePrefix ./STAR_bam/WT"$n" \
+--readFilesIn WT_"$n"_1.trimmed.fq.gz WT_"$n"_2.trimmed.fq.gz \
+--outSAMtype BAM SortedByCoordinate ; \
+STAR \
+--runThreadN 32 \
+--genomeDir ~/ref/Gencode/M28/STAR_index \
+--readFilesCommand zcat \
+--outFileNamePrefix ./STAR_bam/KO"$n" \
+--readFilesIn KO_"$n"_1.trimmed.fq.gz KO_"$n"_2.trimmed.fq.gz \
+--outSAMtype BAM SortedByCoordinate
+
+done
+
+4. merge and filter junctions SJ.out.tab files
+cat *.tab | awk '($5 > 0 && $7 > 2 && $6==0)' | cut -f1-6 | sort | uniq > all.tab
+#command explaination 
+#1. Filter out the junctions on chrM, those are most likely to be false. That's mean remove #all chrM records.
+#2. Filter out non-canonical junctions (column5 == 0). That's mean (column5 > 0).
+#3. Filter out junctions supported by multi mappers only (column7==0). That's mean (column7 > 0)
+#4. Filter out junctions supported by too few reads (e.g. column7<=2). That's mean (column7 > 2)
