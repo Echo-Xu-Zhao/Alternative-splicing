@@ -1,0 +1,24 @@
+# plot individual splicing event with rmats2sashimiplot
+# bam file must be sorted
+
+grep Zfp532 SE.MATS.JCEC.txt > /media/xuzhao/XU_harddisk/RNA_seq/alternative_splicing/rMATS/sashimiplot/Zfp532/Zfp532_SE.txt;
+rmats2sashimiplot --b1 KO_1Aligned.sorted.bam,KO_2Aligned.sorted.bam --b2 WT_1Aligned.sorted.bam,WT_2Aligned.sorted.bam -e /media/xuzhao/XU_harddisk/RNA_seq/alternative_splicing/rMATS/sashimiplot/Zfp532/Zfp532_SE.txt -t SE --l1 KO --l2 WT --exon_s 1 --intron_s 5 -o /media/xuzhao/XU_harddisk/RNA_seq/alternative_splicing/rMATS/sashimiplot/Zfp532_plot
+
+
+########### Note
+Selecting Splice sites Since we are only visualizing a splicing event for a single gene, we need to run the command once per gene per splicing event. This requires greping the gene from the splicng event result file. For example, visualizing a gene's skipped exon events:
+
+grep {gene name or ensembl id} SE.ReadsOnTargetAndJunctionCounts.txt > gene_SE.txt
+
+Then:
+
+/rmats/path/rmats2sashimiplot -b1 conditon1_replicate_1.bam,condition_1_replicate_2.bam -b2 condition_2_replicate_1.bam,condition_2_replicate_2.bam -e gene_SE.txt -t SE -l1 Condition_1_name -l2 Condition_2_name -o /path/to/output/directory
+
+The -t flag is the splicing event you are investigating (SE, MXE, RI, etc...see rMATs documentation for an explanation of these)
+
+The l1 and l2 flags are condition label names
+
+The visualizations will be saved as PDFs
+
+NOTE: unfortuantely rmats2sashimiplot requires the same number of replicates between condition 1 and condition 2. If you do not, have the same number of replicates, then it's imperative to merge all replicates to one bam file and perform the visualization
+############ Note
