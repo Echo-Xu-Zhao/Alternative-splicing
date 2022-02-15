@@ -37,3 +37,11 @@ summary(count_matrix)
 
 ## By default, featureCounts use the full path to the input bam files as the sample name. To make downstream analysis easier, it’s better to change the sample names to be something more descriptive:
 colnames(count_matrix$counts) <- sample_ID
+
+## save R working image
+
+save.image(paste0(outdir, "/featureCounts_workspace", ".RData"))
+
+## save the matrix and annotation
+write.table(count_matrix[["counts"]], "featurecounts_matrix.txt", sep = "\t", row.names = T)
+write.table(count_matrix[["annotation"]], "featurecounts_annotation.txt", sep = "\t", row.names = F)
