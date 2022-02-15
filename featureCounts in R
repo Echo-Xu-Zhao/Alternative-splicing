@@ -1,0 +1,39 @@
+For paired-end reads, you should count read pairs (fragments) rather than reads because counting fragments will give you more accurate counts. 
+There are several reasons why you cannot get the fragment counts by simply dividing the counts you got from counting reads by two.
+https://support.bioconductor.org/p/63824/
+
+library(Rsubread)
+
+input <-c("D:/RNA_seq/20220207_m28_analysis/STAR_bam_2pass/WT1_2P_Aligned.sortedByCoord.out.bam","D:/RNA_seq/20220207_m28_analysis/STAR_bam_2pass/WT2_2P_Aligned.sortedByCoord.out.bam",
+          "D:/RNA_seq/20220207_m28_analysis/STAR_bam_2pass/WT3_2P_Aligned.sortedByCoord.out.bam","D:/RNA_seq/20220207_m28_analysis/STAR_bam_2pass/WT4_2P_Aligned.sortedByCoord.out.bam",
+          "D:/RNA_seq/20220207_m28_analysis/STAR_bam_2pass/KO1_2P_Aligned.sortedByCoord.out.bam","D:/RNA_seq/20220207_m28_analysis/STAR_bam_2pass/KO2_2P_Aligned.sortedByCoord.out.bam",
+          "D:/RNA_seq/20220207_m28_analysis/STAR_bam_2pass/KO3_2P_Aligned.sortedByCoord.out.bam","D:/RNA_seq/20220207_m28_analysis/STAR_bam_2pass/KO4_2P_Aligned.sortedByCoord.out.bam")
+## define unique identification for each sample, need to follow the same order as the bams
+sample_ID <- c("wt1_norm","wt2_norm","wt3_h2o2","wt4_h2o2","ko1_norm","ko2_norm","ko3_h2o2","ko4_h2o2")
+
+## THe output directory where the R data will be stored
+outdir <-"C:/mettl4 project/2022_RNAseq/rMATS_2pass_new/DEseq_analysis"
+
+##The genome annotation file containing genomic loci of exons and introns of each gene
+GRCm39_M28 <- "C:/mettl4 project/2022_RNAseq/rMATS_2pass_new/gencode.vM28.primary_assembly.annotation.gtf"
+
+## invoke the featurecounts function from subRead package
+#For paired-end reads, you should count read pairs (fragments) rather than reads because counting fragments will give you more accurate counts.
+count_matrix <- featureCounts(files=input,
+                              annot.ext=GRCm39_M28,
+                              isGTFAnnotationFile=TRUE,
+                              GTF.featureType="exon",
+                              GTF.attrType="gene_id",
+                              useMetaFeatures=TRUE,
+                              allowMultiOverlap=TRUE,
+                              largestOverlap=TRUE,
+                              countMultiMappingReads=TRUE,
+                              isPairedEnd=TRUE,
+                              countReadPairs=TRUE,
+                              nthreads=2)
+
+## read counts will be stored in the count_matrx
+summary(count_matrix)
+
+## By default, featureCounts use the full path to the input bam files as the sample name. To make downstream analysis easier, it’s better to change the sample names to be something more descriptive:
+colnames(count_matrix$counts) <- sample_ID
