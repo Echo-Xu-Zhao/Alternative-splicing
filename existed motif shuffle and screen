@@ -1,0 +1,4 @@
+# step 1. make the input file for homer screening by using MEME function
+sites2meme -rna directory of input.txt > <output file name>
+
+# step2.
