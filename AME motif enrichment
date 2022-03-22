@@ -1,0 +1,38 @@
+http://genomespot.blogspot.com/2015/03/extracting-specific-sequences-from-big.html
+ 
+## input fasta file
+  #1. Use samtools faidx to extract a single FASTA entry
+  samtools faidx GRCm39.primary_assembly.genome.fa
+  #2. Requires the regions of interest be in BED format.There is no need assign scores to each of the sequences.
+    $ head coordinates.bed
+      chr1 10413 11207
+      chr1 28687 29634
+      chr1 51546 51882
+      chr1 121270 121549
+  #3. Use bedtools getfasta extract portions of a FASTA entry
+  bedtools getfasta -fi GRCm39.primary_assembly.genome.fa -bed coordinates.bed -fo coordinates.fasta
+
+## control fasta file, can be made with fasta-shuffle-letters function, or by specifying --control --shuffle--
+fasta-shuffle-letters -rna coordinates.fasta coordinates.shuffle.fasta
+
+## motif file in MEME motif format,
+sites2meme [options] <directory to sites file.txt>
+
+#Example 'sites' file contents:
+AAGGTCA
+AAGGTCA
+AAGGTCA
+AAGGTCA
+AAGGTCA
+AAGGTCA
+AAGGTCA
+AAGGTCA
+AAGGTCA
+AAGGTCA
+CGGGTCA
+CGGGTCA
+CGGGTCA
+GGGGTCG
+
+## Use website software, or Run command as below
+ame --verbose 1 --oc . --scoring avg --method ranksum --hit-lo-fraction 0.25 --evalue-report-threshold 5.0 --control --shuffle-- --kmer 6 coordinates.fasta HMAGKD.motif
