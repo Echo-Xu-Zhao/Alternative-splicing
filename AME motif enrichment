@@ -1,5 +1,7 @@
 http://genomespot.blogspot.com/2015/03/extracting-specific-sequences-from-big.html
- 
+
+All files should use same alphebeta, U or T
+
 ## input fasta file
   #1. Use samtools faidx to extract a single FASTA entry
   samtools faidx GRCm39.primary_assembly.genome.fa
@@ -12,7 +14,7 @@ http://genomespot.blogspot.com/2015/03/extracting-specific-sequences-from-big.ht
   #3. Use bedtools getfasta extract portions of a FASTA entry
   bedtools getfasta -fi GRCm39.primary_assembly.genome.fa -bed coordinates.bed -fo coordinates.fasta
 
-## control fasta file (should use same alphebeta, U or T), can be made with fasta-shuffle-letters function, or by specifying --control --shuffle--
+## control fasta file, can be made with fasta-shuffle-letters function, or by specifying --control --shuffle--
 fasta-shuffle-letters -rna coordinates.fasta coordinates.shuffle.fasta
 
 ## motif file in MEME motif format,
